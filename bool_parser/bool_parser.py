@@ -1,9 +1,9 @@
 import string
 from typing import Union, List, Type
-from parser.types.expressions import Token
+from bool_parser.types.expressions import Token
 from functools import partial
 
-from parser.expressions.models import (
+from bool_parser.expressions.models import (
     PARANTHESES_TO_CLASS,
     BooleanLiteral,
     NumericLiteral,
@@ -13,19 +13,19 @@ from parser.expressions.models import (
     RightParanthesis,
     SymbolTableType,
 )
-from parser.expressions.exceptions import (
+from bool_parser.expressions.exceptions import (
     InvalidCharacter,
     InvalidExpression,
     MatchError,
     MissingLeftParanthesis,
     MissingRightParanthesis,
 )
-from parser.expressions.models import (
+from bool_parser.expressions.models import (
     Expression,
     Identifier,
     TOKEN_TO_CLASS,
 )
-from parser.parser_config import rules
+from bool_parser.parser_config import rules
 
 parantheses = set(PARANTHESES_TO_CLASS.keys())
 operation_symbols = set(TOKEN_TO_CLASS.keys())

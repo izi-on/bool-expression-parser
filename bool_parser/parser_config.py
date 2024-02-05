@@ -1,5 +1,5 @@
 from typing import Type
-from parser.expressions.models import (
+from bool_parser.expressions.models import (
     And,
     GetPassFail,
     BinaryExpression,
