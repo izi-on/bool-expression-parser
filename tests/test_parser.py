@@ -6,10 +6,10 @@ from parser.parser import eval_expression
 
 
 symbol_table = {
-    "fdg": Variable(False),
-    "dg": Variable(True),
-    "t": Variable(True),
-    "f": Variable(False),
+    "fdg": Variable(False, 0.5),
+    "dg": Variable(True, 5),
+    "t": Variable(True, 3),
+    "f": Variable(False, 12),
 }
 run_test = partial(eval_expression, symbol_table=symbol_table)
 
@@ -69,7 +69,3 @@ def test_subexpressions():
         ("($t & ($t | $f)) | !($f & $t)", True),
     ]
     _run(tests)
-
-
-# def test_subexpression():
-#     tests = [("(False)", False), ("()")]

@@ -20,8 +20,9 @@ class Operator:
 
 
 class Variable:
-    def __init__(self, pass_or_fail):
+    def __init__(self, pass_or_fail: bool, exec_time: float):
         self.pass_or_fail = pass_or_fail
+        self.exec_time = exec_time
 
 
 ReturnTypes = Union[Type[bool], Type[Variable], Type[str], Type[float]]

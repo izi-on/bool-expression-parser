@@ -1,19 +1,13 @@
 import string
-from collections import defaultdict
-from typing import ClassVar, Match, Union, List, Type, cast
-from parser.utils.parser import Token
-from functools import partial, reduce
+from typing import Union, List, Type
+from parser.types.expressions import Token
+from functools import partial
 
-# from expressions.models import token_to_class
-# from expressions.exceptions import InvalidCharacter
 from parser.expressions.models import (
     PARANTHESES_TO_CLASS,
     BooleanLiteral,
     NumericLiteral,
-    ExpectAlias,
-    ExpressionType,
     LeftParanthesis,
-    NumericLiteral,
     Operator,
     ReturnTypes,
     RightParanthesis,
@@ -28,10 +22,6 @@ from parser.expressions.exceptions import (
 )
 from parser.expressions.models import (
     Expression,
-    Variable,
-    And,
-    Or,
-    Not,
     Identifier,
     TOKEN_TO_CLASS,
 )
@@ -116,7 +106,7 @@ def _tokenize(s: str, symbol_table: SymbolTableType) -> list[Token]:
 
 def _build_ast(tokens: list[Token], symbol_table: SymbolTableType) -> Expression:
     """
-    This function builds the abstract syntax tree for the boolean expression
+    This function builds the abstract syntax tree for the boolean expression.
     """
 
     """
@@ -126,11 +116,9 @@ def _build_ast(tokens: list[Token], symbol_table: SymbolTableType) -> Expression
     recurse = partial(_build_ast, symbol_table=symbol_table)
 
     def _get_subexpressions(tokens: list[Token]):
-        print("extract from", tokens)
         sub_exps: List[tuple[int, int]] = []  # default value necessary
         stack: List[int] = []
         for i in range(len(tokens)):
-            print(tokens[i])
             match tokens[i]:  # type: ignore
                 case LeftParanthesis():
                     stack.append(i)
@@ -190,10 +178,8 @@ def _build_ast(tokens: list[Token], symbol_table: SymbolTableType) -> Expression
                         if isinstance(cur_item, Expression)
                         else cur_item
                     )
-                    print("cur_item:", cur_item, ", poss:", cur_node.children)
 
-                    if not item_matcher in cur_node.children:
-                        print("nothing found in children")
+                    if item_matcher not in cur_node.children:
                         return False, None, None  # type: ignore
                     cur_node = cur_node.children[item_matcher]
                     cur_idx += 1
@@ -211,12 +197,6 @@ def _build_ast(tokens: list[Token], symbol_table: SymbolTableType) -> Expression
                 return False, None, None  # type: ignore
 
         trie = _build_trie(to_match)
-        print(
-            "trying to match:",
-            list(map(lambda x: x.expects, to_match)),
-            "with",
-            to_parse,
-        )
         for i in range(0, len(to_parse)):
             result, targets, expr_type = is_match(i, trie)
             if result:
@@ -231,7 +211,6 @@ def _build_ast(tokens: list[Token], symbol_table: SymbolTableType) -> Expression
     to_parse: List[ParseItem] = []
 
     # step 1: parse all subexpressions first
-    print("before", to_parse)
     sub_exps = (
         [(-2, -1)] + _get_subexpressions(tokens) + [(len(tokens), len(tokens) + 1)]
     )
@@ -242,15 +221,11 @@ def _build_ast(tokens: list[Token], symbol_table: SymbolTableType) -> Expression
         if sublist:
             to_parse += [recurse(sublist)]
         i = sub_exp[1] + 1
-    print("after", to_parse)
 
     # step 2: parse in order defined by parser_config
     for expressions in rules.order_of_operations:
-        print("Checking expressions:", expressions)
-
         matched, match_idx, end_idx, expr = _match(to_parse, expressions)
         while matched:
-            print("matched! <3")
             to_parse = to_parse[:match_idx] + [expr] + to_parse[end_idx:]
             matched, match_idx, end_idx, expr = _match(to_parse, expressions)
     if len(to_parse) != 1 or not isinstance(to_parse[0], Expression):
@@ -259,11 +234,15 @@ def _build_ast(tokens: list[Token], symbol_table: SymbolTableType) -> Expression
     return to_parse[0]
 
 
-def _evaluate_ast(_ast: Expression):
+def _evaluate_ast(_ast: Expression) -> bool:
     return _ast.operation()
 
 
-def eval_expression(input: str, symbol_table: SymbolTableType):
+def eval_expression(input: str, symbol_table: SymbolTableType) -> bool:
+    """
+    Evaluates the input expression with the given symbol_table.
+    Necessarily returns a boolean value.
+    """
     tokens = _tokenize(input, symbol_table)
     ast = _build_ast(tokens, symbol_table)
     return _evaluate_ast(ast)

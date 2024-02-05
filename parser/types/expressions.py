@@ -1,4 +1,4 @@
-from typing import Type, Callable, List, Optional, Union
+from typing import Callable, List, Optional, Union
 from ..expressions.models import (
     Identifier,
     LeftParanthesis,
